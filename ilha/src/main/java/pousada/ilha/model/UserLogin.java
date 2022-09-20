@@ -12,8 +12,15 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class UserLoginDTO implements Serializable{
+public class UserLogin implements Serializable{
     
-    private String user;
+	private static final long serialVersionUID = 1L;
+	
+	private String user;
     private String senha;
+    
+	private String usuario;
+	
+	private String token;   
+    
 }

@@ -1,16 +1,15 @@
 package pousada.ilha.service;
-import java.util.Optional;
-
 import java.nio.charset.Charset;
-import org.apache.commons.codec.binary.Base64;
 import java.util.Optional;
 
-import org.generation.blogPessoal.model.UserLogin;
-import org.generation.blogPessoal.model.Usuario;
-import org.generation.blogPessoal.repository.UsuarioRepository;
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import pousada.ilha.model.UserLogin;
+import pousada.ilha.model.UsuarioDTO;
+import pousada.ilha.repository.UsuarioRepository;
 
 @Service
 public class UsuarioService {
@@ -18,9 +17,8 @@ public class UsuarioService {
 	@Autowired
 	private UsuarioRepository repository;
 	
-	public Usuario atualizar(Usuario usuario) {
+	public UsuarioDTO atualizar(UsuarioDTO usuario) {
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-		
 		String senhaEncoder = encoder.encode(usuario.getSenha());
 		usuario.setSenha(senhaEncoder);
 
@@ -28,7 +26,7 @@ public class UsuarioService {
 	}
 
 
-	public Usuario CadastrarUsuario(Usuario usuario) {
+	public UsuarioDTO cadastrarUsuario(UsuarioDTO usuario) {
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 		
 		if(repository.findByUsuario(usuario.getUsuario()).isPresent())
@@ -40,22 +38,18 @@ public class UsuarioService {
 		return repository.save(usuario);
 	}
 
-	public Optional<UserLogin> Logar(Optional<UserLogin> user) {
+	public Optional<UserLogin> logar(Optional<UserLogin> user) {
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-		Optional<Usuario> usuario = repository.findByUsuario(user.get().getUsuario());
+		Optional<UsuarioDTO> usuario = repository.findByUsuario(user.get().getUsuario());
 
 		if (usuario.isPresent()) {
 			if (encoder.matches(user.get().getSenha(), usuario.get().getSenha())) {
 
 				String auth = user.get().getUsuario() + ":" + user.get().getSenha();
-				byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("US-ASCII")));
+				byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("US_ASCII")));
 				String authHeader = "Basic " + new String(encodedAuth);
 
 				user.get().setToken(authHeader);
-				user.get().setId(usuario.get().getId());
-				user.get().setNome(usuario.get().getNome());
-				user.get().setFoto(usuario.get().getFoto());
-				user.get().setTipo(usuario.get().getTipo());
 
 				return user;
 			}
