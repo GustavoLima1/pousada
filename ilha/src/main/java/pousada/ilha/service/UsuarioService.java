@@ -1,4 +1,5 @@
 package pousada.ilha.service;
+
 import java.nio.charset.Charset;
 import java.util.Optional;
 
@@ -16,7 +17,7 @@ public class UsuarioService {
 
 	@Autowired
 	private UsuarioRepository repository;
-	
+
 	public UsuarioDTO atualizar(UsuarioDTO usuario) {
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 		String senhaEncoder = encoder.encode(usuario.getSenha());
@@ -25,11 +26,10 @@ public class UsuarioService {
 		return repository.save(usuario);
 	}
 
-
 	public UsuarioDTO cadastrarUsuario(UsuarioDTO usuario) {
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-		
-		if(repository.findByUsuario(usuario.getUsuario()).isPresent())
+
+		if (repository.findByUsuario(usuario.getUsuario()).isPresent())
 			return null;
 
 		String senhaEncoder = encoder.encode(usuario.getSenha());
@@ -42,20 +42,17 @@ public class UsuarioService {
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 		Optional<UsuarioDTO> usuario = repository.findByUsuario(user.get().getUsuario());
 
-		if (usuario.isPresent()) {
-			if (encoder.matches(user.get().getSenha(), usuario.get().getSenha())) {
+		if (usuario.isPresent() && encoder.matches(user.get().getSenha(), usuario.get().getSenha())) {
 
-				String auth = user.get().getUsuario() + ":" + user.get().getSenha();
-				byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("US_ASCII")));
-				String authHeader = "Basic " + new String(encodedAuth);
+			String auth = user.get().getUsuario() + ":" + user.get().getSenha();
+			byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("US_ASCII")));
+			String authHeader = "Basic " + new String(encodedAuth);
 
-				user.get().setToken(authHeader);
+			user.get().setToken(authHeader);
 
-				return user;
-			}
-
+			return user;
 		}
-		return null;
+		return Optional.empty();
 
 	}
 
